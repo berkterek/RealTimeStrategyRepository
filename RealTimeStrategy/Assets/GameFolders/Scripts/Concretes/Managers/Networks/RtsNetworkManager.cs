@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RealTimeStrategy.Managers
+namespace RealTimeStrategy.Managers.Networks
 {
-    public class MyNetworkManager : NetworkManager
+    public class RtsNetworkManager : NetworkManager
     {
         
     }
