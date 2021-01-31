@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using RealTimeStrategy.Abstracts.Controllers;
@@ -8,7 +7,6 @@ using RealTimeStrategy.Actions;
 using RealTimeStrategy.Movements;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem;
 
 namespace RealTimeStrategy.Controllers
 {
@@ -25,7 +23,7 @@ namespace RealTimeStrategy.Controllers
         
         private void Awake()
         {
-            _mover = new Mover(GetComponent<NavMeshAgent>(), Camera.main);
+            _mover = new Mover(GetComponent<NavMeshAgent>());
             _selectionAction = new SelectionAction(_spriteRenderer);
         }
 
@@ -44,30 +42,14 @@ namespace RealTimeStrategy.Controllers
             OnSelected -= _selectionAction.EnableDisableSprite;
         }
 
-        private void Update()
-        {
-            if (!hasAuthority) return;
-            
-            if (Mouse.current.rightButton.wasPressedThisFrame)
-            {
-                _position = Mouse.current.position.ReadValue();
-                _isMousePressed = true;
-            }
-        }
-
-        [ClientCallback]
-        private void FixedUpdate()
-        {
-            if (_isMousePressed)
-            {
-                _mover.Move(_position);
-                _isMousePressed = false;
-            }
-        }
-
         public void Selection(bool isEnable)
         {
             OnSelected?.Invoke(isEnable);
+        }
+
+        public void MoveAction(Vector3 position)
+        {
+            _mover.Move(position);
         }
     }
 }

@@ -4,15 +4,15 @@ using RealTimeStrategy.Controllers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace RealTimeStrategy.Managers
+namespace RealTimeStrategy.Commands
 {
-    public class UnitSelectionManager : MonoBehaviour
+    public class UnitSelection : MonoBehaviour
     {
         [SerializeField] LayerMask _layerMask;
         
         private Camera _camera;
 
-        private List<UnitController> _selectionUnit = new List<UnitController>();
+        public List<UnitController> SelectionUnits { get; } = new List<UnitController>();
 
         private void Awake()
         {
@@ -23,12 +23,12 @@ namespace RealTimeStrategy.Managers
         {
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                foreach (UnitController unit in _selectionUnit)
+                foreach (UnitController unit in SelectionUnits)
                 {
                     unit.Selection(false);
                 }
             
-                _selectionUnit.Clear();
+                SelectionUnits.Clear();
             }
             else if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
@@ -46,13 +46,12 @@ namespace RealTimeStrategy.Managers
 
             if (!unitController.hasAuthority) return;
             
-            _selectionUnit.Add(unitController);
+            SelectionUnits.Add(unitController);
 
-            foreach (UnitController unit in _selectionUnit)
+            foreach (UnitController unit in SelectionUnits)
             {
                 unit.Selection(true);
             }
         }
     }    
 }
-
