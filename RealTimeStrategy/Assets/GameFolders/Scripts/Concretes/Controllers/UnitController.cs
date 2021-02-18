@@ -19,7 +19,11 @@ namespace RealTimeStrategy.Controllers
         Vector3 _position;
         bool _isMousePressed;
 
-        public event System.Action<bool> OnSelected; 
+        public event System.Action<bool> OnSelected;
+        public static event System.Action<UnitController> OnServerUnitSpawned;
+        public static event System.Action<UnitController> OnServerUnitDespawned;
+        public static event System.Action<UnitController> OnAuthorityUnitSpawned;
+        public static event System.Action<UnitController> OnAuthorityUnitDespawned;
         
         private void Awake()
         {
@@ -40,6 +44,30 @@ namespace RealTimeStrategy.Controllers
         private void OnDisable()
         {
             OnSelected -= _selectionAction.EnableDisableSprite;
+        }
+
+        public override void OnStartServer()
+        {
+            OnServerUnitSpawned?.Invoke(this);
+        }
+
+        public override void OnStopServer()
+        {
+            OnServerUnitDespawned?.Invoke(this);
+        }
+
+        public override void OnStartClient()
+        {
+            if (!isClient || !hasAuthority) return;
+            
+            OnAuthorityUnitSpawned?.Invoke(this);
+        }
+
+        public override void OnStopClient()
+        {
+            if (!isClient || !hasAuthority) return;
+            
+            OnAuthorityUnitDespawned?.Invoke(this);
         }
 
         public void Selection(bool isEnable)
