@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using RealTimeStrategy.Controllers;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,50 +10,109 @@ namespace RealTimeStrategy.Commands
 {
     public class UnitSelection : MonoBehaviour
     {
+        [SerializeField] RectTransform _unitSelectionArea;
         [SerializeField] LayerMask _layerMask;
-        
-        private Camera _camera;
+
+        Camera _camera;
+        PlayerController _playerController;
+        Vector2 _startPosition;
 
         public List<UnitController> SelectionUnits { get; } = new List<UnitController>();
 
         private void Awake()
         {
             _camera = Camera.main;
+            // _playerController = NetworkClient.connection.identity.GetComponent<PlayerController>();
+        }
+
+        private IEnumerator Start()
+        {
+            //gecici cozum
+            while (_playerController == null)
+            {
+                yield return new WaitForSeconds(1f);
+                _playerController = NetworkClient.connection.identity.GetComponent<PlayerController>();
+                Debug.Log(_playerController == null);
+            }
         }
 
         private void Update()
         {
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                foreach (UnitController unit in SelectionUnits)
-                {
-                    unit.Selection(false);
-                }
-            
-                SelectionUnits.Clear();
+                StartSelectionArea();
             }
             else if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 ClearSelectionArea();
             }
+            else if (Mouse.current.leftButton.IsPressed())
+            {
+                UpdateSelectionArea();
+            }
+        }
+
+        private void UpdateSelectionArea()
+        {
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+
+            float areaWidth = mousePosition.x - _startPosition.x;
+            float areaHeight = mousePosition.y - _startPosition.y;
+
+            _unitSelectionArea.sizeDelta = new Vector2(Mathf.Abs(areaWidth), Mathf.Abs(areaHeight));
+            _unitSelectionArea.anchoredPosition = _startPosition + new Vector2(areaWidth / 2f, areaHeight / 2f);
+        }
+
+        private void StartSelectionArea()
+        {
+            foreach (UnitController unit in SelectionUnits)
+            {
+                unit.Selection(false);
+            }
+
+            SelectionUnits.Clear();
+
+            _unitSelectionArea.gameObject.SetActive(true);
+            _startPosition = Mouse.current.position.ReadValue();
         }
 
         private void ClearSelectionArea()
         {
-            Ray ray = _camera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            _unitSelectionArea.gameObject.SetActive(false);
 
-            if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _layerMask)) return;
-
-            if (!hit.collider.TryGetComponent<UnitController>(out UnitController unitController)) return;
-
-            if (!unitController.hasAuthority) return;
-            
-            SelectionUnits.Add(unitController);
-
-            foreach (UnitController unit in SelectionUnits)
+            if (_unitSelectionArea.sizeDelta.magnitude == 0f)
             {
-                unit.Selection(true);
+                Ray ray = _camera.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+                if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _layerMask)) return;
+
+                if (!hit.collider.TryGetComponent<UnitController>(out UnitController unitController)) return;
+
+                if (!unitController.hasAuthority) return;
+
+                SelectionUnits.Add(unitController);
+
+                foreach (UnitController unit in SelectionUnits)
+                {
+                    unit.Selection(true);
+                }
+            }
+            else
+            {
+                Vector2 min = _unitSelectionArea.anchoredPosition - (_unitSelectionArea.sizeDelta / 2);
+                Vector2 max = _unitSelectionArea.anchoredPosition + (_unitSelectionArea.sizeDelta / 2);
+
+                foreach (UnitController unitController in _playerController.Units)
+                {
+                    Vector3 screenPosition = _camera.WorldToScreenPoint(unitController.transform.position);
+
+                    if (screenPosition.x > min.x && screenPosition.x < max.x && screenPosition.y > min.y && screenPosition.y < max.y)
+                    {
+                        SelectionUnits.Add(unitController);
+                        unitController.Selection(true);
+                    }
+                }
             }
         }
-    }    
+    }
 }

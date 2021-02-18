@@ -10,6 +10,8 @@ namespace RealTimeStrategy.Controllers
     {
         [SerializeField] List<UnitController> _units = new List<UnitController>();
 
+        public List<UnitController> Units => _units;
+
         public override void OnStartServer()
         {
             UnitController.OnServerUnitSpawned += OnServerUnitSpawned;
