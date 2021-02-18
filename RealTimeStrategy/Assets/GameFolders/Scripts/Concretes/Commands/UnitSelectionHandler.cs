@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 namespace RealTimeStrategy.Commands
 {
-    public class UnitSelection : MonoBehaviour
+    public class UnitSelectionHandler : MonoBehaviour
     {
         [SerializeField] RectTransform _unitSelectionArea;
         [SerializeField] LayerMask _layerMask;
@@ -22,12 +22,11 @@ namespace RealTimeStrategy.Commands
         private void Awake()
         {
             _camera = Camera.main;
-            // _playerController = NetworkClient.connection.identity.GetComponent<PlayerController>();
         }
 
         private IEnumerator Start()
         {
-            //gecici cozum
+            //temp solution
             while (_playerController == null)
             {
                 yield return new WaitForSeconds(1f);

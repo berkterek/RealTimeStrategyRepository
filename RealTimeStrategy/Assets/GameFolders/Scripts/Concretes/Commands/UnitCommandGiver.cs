@@ -10,12 +10,12 @@ namespace RealTimeStrategy.Commands
     {
         [SerializeField] LayerMask _layerMask;
         
-        UnitSelection _unitSelection;
+        UnitSelectionHandler _unitSelectionHandler;
         Camera _camera;
         
         private void Awake()
         {
-            _unitSelection = GetComponent<UnitSelection>();
+            _unitSelectionHandler = GetComponent<UnitSelectionHandler>();
             _camera = Camera.main;
         }
 
@@ -32,7 +32,7 @@ namespace RealTimeStrategy.Commands
 
         private void TryMove(Vector3 hitPoint)
         {
-            foreach (UnitController unitController in _unitSelection.SelectionUnits)
+            foreach (UnitController unitController in _unitSelectionHandler.SelectionUnits)
             {
                 unitController.MoveAction(hitPoint);
             }
