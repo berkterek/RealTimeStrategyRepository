@@ -46,6 +46,11 @@ namespace RealTimeStrategy.Controllers
             OnSelected -= _selectionAction.EnableDisableSprite;
         }
 
+        void Update()
+        {
+            _mover.Tick();
+        }
+
         public override void OnStartServer()
         {
             OnServerUnitSpawned?.Invoke(this);

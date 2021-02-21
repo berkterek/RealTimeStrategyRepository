@@ -64,12 +64,15 @@ namespace RealTimeStrategy.Commands
 
         private void StartSelectionArea()
         {
-            foreach (UnitController unit in SelectionUnits)
+            if (!Keyboard.current.leftShiftKey.IsPressed())
             {
-                unit.Selection(false);
+                foreach (UnitController unit in SelectionUnits)
+                {
+                    unit.Selection(false);
+                }
+                
+                SelectionUnits.Clear();
             }
-
-            SelectionUnits.Clear();
 
             _unitSelectionArea.gameObject.SetActive(true);
             _startPosition = Mouse.current.position.ReadValue();
@@ -103,6 +106,8 @@ namespace RealTimeStrategy.Commands
 
                 foreach (UnitController unitController in _playerController.Units)
                 {
+                    if(SelectionUnits.Contains(unitController)) continue;
+                    
                     Vector3 screenPosition = _camera.WorldToScreenPoint(unitController.transform.position);
 
                     if (screenPosition.x > min.x && screenPosition.x < max.x && screenPosition.y > min.y && screenPosition.y < max.y)
