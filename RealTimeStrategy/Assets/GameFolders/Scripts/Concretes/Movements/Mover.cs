@@ -1,5 +1,7 @@
 ﻿using Mirror;
+using RealTimeStrategy.Abstracts.Controllers;
 using RealTimeStrategy.Abstracts.Movements;
+using RealTimeStrategy.Combats;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,10 +10,12 @@ namespace RealTimeStrategy.Movements
     public class Mover : IMover
     {
         NavMeshAgent _navMeshAgent;
-
-        public Mover(NavMeshAgent navMeshAgent)
+        Targeter _targeter;
+        
+        public Mover(IEntityController entityController)
         {
-            _navMeshAgent = navMeshAgent;
+            _navMeshAgent = entityController.transform.GetComponent<NavMeshAgent>();
+            _targeter = entityController.transform.GetComponent<Targeter>();
         }
 
         [Command]
@@ -19,6 +23,7 @@ namespace RealTimeStrategy.Movements
         {
             if (!NavMesh.SamplePosition(position, out NavMeshHit navHit, 1f, NavMesh.AllAreas)) return;
 
+            _targeter.ClearTarget();
             _navMeshAgent.SetDestination(navHit.position);
         }
 

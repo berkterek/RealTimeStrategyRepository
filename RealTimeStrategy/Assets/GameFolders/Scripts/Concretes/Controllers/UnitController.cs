@@ -4,9 +4,9 @@ using Mirror;
 using RealTimeStrategy.Abstracts.Controllers;
 using RealTimeStrategy.Abstracts.Movements;
 using RealTimeStrategy.Actions;
+using RealTimeStrategy.Combats;
 using RealTimeStrategy.Movements;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace RealTimeStrategy.Controllers
 {
@@ -17,7 +17,10 @@ namespace RealTimeStrategy.Controllers
         IMover _mover;
         SelectionAction _selectionAction;
         Vector3 _position;
+        Targeter _targeter;
         bool _isMousePressed;
+
+        public Targeter Targeter => _targeter;
 
         public event System.Action<bool> OnSelected;
         public static event System.Action<UnitController> OnServerUnitSpawned;
@@ -27,8 +30,9 @@ namespace RealTimeStrategy.Controllers
         
         private void Awake()
         {
-            _mover = new Mover(GetComponent<NavMeshAgent>());
+            _mover = new Mover(this);
             _selectionAction = new SelectionAction(_spriteRenderer);
+            _targeter = GetComponent<Targeter>();
         }
 
         private void Start()
